@@ -9,6 +9,10 @@ import * as L from 'leaflet';
 export class HomePage implements OnInit {
   map!: L.Map;
   marker!: L.Marker;
+  osmLayer!: L.TileLayer;
+  darkModeLayer!: L.TileLayer;
+  humanitarianLayer!: L.TileLayer;
+  topoLayer!: L.TileLayer;
 
   constructor() {}
 
@@ -21,32 +25,81 @@ export class HomePage implements OnInit {
   }
 
   initializeMap() {
-    // Initialize the map
-    this.map = L.map('mapId').setView([51.505, -0.09], 10);
+    //Inisiasi peta dan set view
+    this.map = L.map('mapId').setView([-6.31060, 106.82026], 15
+    );
 
-    // Add the OpenStreetMap tile layer
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    //Inisiasi basemap (tanpa ditampilkan)
+    //Default OSM
+    this.osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
     }).addTo(this.map);
 
-    // Fix: Use a valid LatLngExpression (array of numbers)
-    const defaultLocation: L.LatLngExpression = [51.505, -0.09]; // Example coordinates (London)
+    //DarkMode OSM
+    this.darkModeLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CartoDB</a>',
+      maxZoom: 19
+    });
 
-    // Add a default marker at the specified location
+    //Humanitarian OSM
+    this.humanitarianLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+      attribution: '&copy; Humanitarian OSM Team',
+      maxZoom: 19
+    });
+
+    //OpenTopoMap
+    this.topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenTopoMap contributors',
+      maxZoom: 17
+    });
+
+    //Menambahkan marker default
+    const defaultLocation: L.LatLngExpression = [-6.31060, 106.82026];
     this.marker = L.marker(defaultLocation).addTo(this.map)
-      .bindPopup('<b>Hello!</b><br>This is a default marker.')
+      .bindPopup('<b>Kebun Binatang Ragunan</b><br>Taman Margasatwa di Jakarta Selatan')
       .openPopup();
 
-    // Add a click event listener to the map to add markers dynamically
+    //Menambahkan click event listener agar marker dapat ditambah dinamis
     this.map.on('click', (e: L.LeafletMouseEvent) => {
       this.addMarker(e.latlng);
     });
   }
 
-  // Function to add a marker on click
+  //Merubah basemap sesuai pilihan
+  changeBasemap(event: any) {
+    const selectedBasemap = event.detail.value;
+    console.log('Selected basemap:', selectedBasemap);
+
+    //Menghapus layer basemap jika dibutuhkan
+    if (this.map.hasLayer(this.osmLayer)) {
+      this.map.removeLayer(this.osmLayer);
+    }
+    if (this.map.hasLayer(this.darkModeLayer)) {
+      this.map.removeLayer(this.darkModeLayer);
+    }
+    if (this.map.hasLayer(this.humanitarianLayer)) {
+      this.map.removeLayer(this.humanitarianLayer);
+    }
+    if (this.map.hasLayer(this.topoLayer)) {
+      this.map.removeLayer(this.topoLayer);
+    }
+
+    //Memunculkan basemap pilihan
+    if (selectedBasemap === 'osm') {
+      this.osmLayer.addTo(this.map);
+    } else if (selectedBasemap === 'dark') {
+      this.darkModeLayer.addTo(this.map);
+    } else if (selectedBasemap === 'humanitarian') {
+      this.humanitarianLayer.addTo(this.map);
+    } else if (selectedBasemap === 'topo') {
+      this.topoLayer.addTo(this.map);
+    }
+  }
+
   addMarker(latlng: L.LatLng) {
     if (this.marker) {
-      this.marker.remove();  // Remove the previous marker if any
+      this.marker.remove(); //Menghapus marker sebelumnya
     }
     this.marker = L.marker(latlng).addTo(this.map)
       .bindPopup(`<b>Location:</b><br>Lat: ${latlng.lat}, Lng: ${latlng.lng}`)

@@ -5,5 +5,17 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div id="mapId" style="height: 100%; width: 100%;"></div>
+
+  <ion-item>
+    <ion-label>Choose Basemap</ion-label>
+    <ion-select (ionChange)="changeBasemap($event)" interface="popover">
+      <ion-select-option value="osm">OpenStreetMap (Standard)</ion-select-option>
+      <ion-select-option value="dark">Dark Mode</ion-select-option>
+      <ion-select-option value="humanitarian">Humanitarian OSM</ion-select-option>
+      <ion-select-option value="topo">Topographic</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+
+<div id="mapId" style="height: 100%; width: 100%;"></div>
 </ion-content>
